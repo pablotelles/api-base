@@ -1,0 +1,38 @@
+# Node
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# TypeScript build output
+dist
+build
+*.tsbuildinfo
+
+# Coverage / testing
+coverage
+*.lcov
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+*.tmp
+
+# VSCode
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+docker-data/
