@@ -1,11 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-
+import { router } from '@infra/http/routes';
 import { connectMongo, disconnectMongo } from '@config/mongo';
 import { getEnv } from '@config/env';
+import { errorHandler } from './infra/middleware/errorHandleMidleware';
+import chalk from 'chalk';
+import logSymbols from 'log-symbols';
 
-async function main() {
+async function createApp() {
   const PORT = getEnv('PORT');
   const NODE_ENV = getEnv('NODE_ENV');
 
@@ -18,21 +21,20 @@ async function main() {
   app.use(helmet());
   app.use(express.json());
 
-  app.get('/health', (_req, res) => {
-    res.json({ ok: true, env: NODE_ENV });
-  });
-
-  //Rotas de negócio (fina camada HTTP)
+  app.use('/api', router);
 
   app.use((req, res) => {
     res.status(404).json({ error: 'Not found', path: req.path });
   });
 
-  // H. Error handler global (sempre por último)
+  // H. Error handler global
+  app.use(errorHandler);
 
-  const server = app.listen(PORT, () => {
-    console.log(`[api] up on :${PORT} (${NODE_ENV})`);
-  });
+  console.log(
+    `${logSymbols.success} ${chalk.bold.green('[API]')} ${chalk.green('running')} at ${chalk.cyan(
+      `http://localhost:${PORT}`,
+    )} ${chalk.gray(`(${NODE_ENV})`)}`,
+  );
 
   function shutdown(signal: string) {
     console.log(`[api] ${signal} received. Closing...`);
@@ -59,7 +61,7 @@ async function main() {
   process.on('SIGTERM', () => shutdown('SIGTERM'));
 }
 
-main().catch((err) => {
+createApp().catch((err) => {
   console.error('[api] fatal startup error:', err);
   process.exit(1);
 });
